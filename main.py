@@ -110,7 +110,7 @@ def get_news(message):
     today = datetime.now().date()
 
     api_url_news = 'https://newsapi.org/v2/everything?q=' + query +\
-              '&from=' + '2021-04-20' + '&language=en' + '&sortBy=popularity' + '&apiKey=' + api_key_news #str(today)
+              '&from=' + str(today) + '&language=en' + '&sortBy=popularity' + '&apiKey=' + api_key_news
 
     keyboard_news = return_keyb()
     # text and next step for each function
@@ -121,18 +121,18 @@ def get_news(message):
     try:
         NEWS = requests.get(api_url_news).json()
         articles = NEWS['articles']
-        answer_news = 'Top 15 results:\n\n'
+        answer_news = 'Top 15 news about ' + query + ':\n\n'
 
         for i in range(15):
             n = i + 1 # № of an article
             answer_news += str(n) + '. ' + '[' + articles[i]['title'] + '](' + articles[i]['url'] + ')' + "\n\n"
 
-        next_news = bot.send_message(message.from_user.id, text=answer_news, parse_mode='Markdown',
+        bot.send_message(message.from_user.id, text=answer_news, parse_mode='Markdown',
                                      reply_markup=keyboard_news) # print 15 articles
 
     except Exception:
         answer_error_news = 'Couldn\'t find news about ' + query + '.\n' +\
                  'Try asking about something else.'
-        bot.send_message(message.from_user.id, text=answer_error_news, reply_markup=key_other_news)
+        bot.send_message(message.from_user.id, text=answer_error_news, reply_markup=keyboard_news)
 
 bot.polling(none_stop=True, interval=0) # keep asking the bot if it had received any new messages

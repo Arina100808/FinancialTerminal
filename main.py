@@ -164,7 +164,7 @@ def get_news(message):
             answer_news += str(n) + '. ' + '[' + articles[i]['title'] + '](' + articles[i]['url'] + ')' + "\n\n"
 
         next_news = bot.send_message(message.from_user.id, text=answer_news, parse_mode='Markdown') # print 15 articles
-        bot.register_next_step_handler(next_news, get_news)
+        bot.register_next_step_handler(next_news, get_message)
 
     except Exception:
         answer_error_news = 'Couldn\'t find news about ' + query + '.\n' +\
@@ -233,28 +233,32 @@ def get_portfolio(message):
     result = 'My portfolio:\n\n'
     sum_price = 0
     sum_cost = 0
-    for stock in all_stocks:
-        ticker = stock[1]
-        interval = '1day'
-        api_url_stock = 'https://api.twelvedata.com/time_series?symbol=' + ticker + \
-                        '&interval=' + interval + '&outputsize=12&apikey=' + api_key_stocks
+    try:
+        for stock in all_stocks:
+            ticker = stock[1]
+            interval = '1day'
+            api_url_stock = 'https://api.twelvedata.com/time_series?symbol=' + ticker + \
+                            '&interval=' + interval + '&outputsize=12&apikey=' + api_key_stocks
 
-        OHLC = requests.get(api_url_stock).json()
-        price_close = float(OHLC['values'][0]['close'])
-        price = stock[2] * price_close
-        cost = stock[3]
-        change = price - cost
-        str_change = str(round(change, 3))
-        if change > 0:
-            str_change = '+' + str_change
-            result = result + '⬆'
-        elif change < 0:
-            result = result + '⬇'
-        result = result + ticker + ':\n' + 'Change: ' + str_change + '$\n' + 'Price: ' + str(round(price, 3)) + '$ (' +\
-                 str(stock[2]) + ' units)\n\n'
-        sum_price += price
-        sum_cost += cost
-
+            OHLC = requests.get(api_url_stock).json()
+            price_close = float(OHLC['values'][0]['close'])
+            price = stock[2] * price_close
+            cost = stock[3]
+            change = price - cost
+            str_change = str(round(change, 3))
+            if change > 0:
+                str_change = '+' + str_change
+                result = result + '⬆'
+            elif change < 0:
+                result = result + '⬇'
+            result = result + ticker + ':\n' + 'Change: ' + str_change + '$\n' + 'Price: ' + str(round(price, 3)) + '$ (' +\
+                    str(stock[2]) + ' units)\n\n'
+            sum_price += price
+            sum_cost += cost
+    except Exception:
+        answer_error_port = 'Something went wrong. Please try again.'
+        next_post = bot.send_message(message.from_user.id, text=answer_error_port)
+        bot.register_next_step_handler(next_post, ...)
     sum_change = sum_price - sum_cost
     str_sum_change = str(round(sum_change, 3))
     if sum_change > 0:

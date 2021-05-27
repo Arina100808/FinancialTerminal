@@ -323,8 +323,8 @@ def p_add_stock(message):
         old_cost = row.fetchone()[3]
         new_number = old_number + number
         new_cost = old_cost + cost
-        db.execute('UPDATE Portfolio SET number_stocks = ? where user_id = ?', (new_number, user_id))
-        db.execute('UPDATE Portfolio SET cost = ? where user_id = ?', (new_cost, user_id))
+        db.execute('UPDATE Portfolio SET number_stocks = ? where (user_id = ? AND ticker IS ?)', (new_number, user_id))
+        db.execute('UPDATE Portfolio SET cost = ? where (user_id = ? AND ticker IS ?)', (new_cost, user_id))
         conn.commit()
     answer = get_portfolio(message)
     next = bot.send_message(message.from_user.id, text=answer)

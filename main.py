@@ -4,11 +4,11 @@ import requests # to get information from URL
 from datetime import datetime # to get current data (and time)
 import sqlite3
 
-api_key_earnings = 'EPKP2530O3QKL41J' # Alpha Vantage API key
-api_key_stocks = '370e7c78b5584f43a1d13d578e12a619' # Twelve data API key
-api_key_news = '175edb9abf6f4edcae41e117ee5fd86a' # Newsapi API key
+api_key_earnings = 'API' # Alpha Vantage API key
+api_key_stocks = 'API' # Twelve data API key
+api_key_news = 'API' # Newsapi API key
 
-bot = telebot.TeleBot("1705290711:AAElqpKI_SSAglv77PMqnT3hAL4mLEXI-Lw")
+bot = telebot.TeleBot("TOKEN")
 
 # Database for portfolio
 conn = sqlite3.connect('database/datab.db', check_same_thread=False, detect_types=sqlite3.PARSE_DECLTYPES)

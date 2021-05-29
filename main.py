@@ -48,7 +48,7 @@ def get_message(message):
         bot.register_next_step_handler(news_reply, get_news) #next step – function get_news
 # If button "Exchange rate" was chosen
     elif message.text == 'Exchange rate':
-        msg_exrate = 'Write the currency pair (can be either forex or cryptocurrency) using slash(/) delimiter.' \
+        msg_exrate = 'Write the currency pair (can be either forex or cryptocurrency) using slash(/) delimiter. ' \
                      'E.g. "EUR/USD".'
         exrate_reply = bot.send_message(message.chat.id, msg_exrate, reply_markup=return_keyb())
         bot.register_next_step_handler(exrate_reply, get_exrate) #next step – function get_exrate
@@ -201,7 +201,7 @@ def get_exrate(message):
         bot.register_next_step_handler(next_exrate, get_exrate)
 
     except Exception:
-        answer_error_exrate = 'Couldn\'t get exchange rate for the currency pair.' \
+        answer_error_exrate = 'Couldn\'t get exchange rate for the currency pair. ' \
                               'Check if the pair is written correctly: using slash(/) delimiter. E.g. "EUR/USD".'
         next_exrate_2 = bot.send_message(message.from_user.id, text=answer_error_exrate)
         bot.register_next_step_handler(next_exrate_2, get_exrate)

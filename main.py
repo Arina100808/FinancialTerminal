@@ -37,7 +37,7 @@ def get_message(message):
         bot.send_message(message.chat.id, text=return_msg, reply_markup=keyboard_return)
 # If button "Stock" was chosen
     elif message.text == 'Stock price':
-        msg_stock = 'Write the ticker symbol in this chat and I will send you its current OHLC prices,' \
+        msg_stock = 'Write the ticker symbol in this chat and I will send you its current OHLC prices, ' \
                     'earning per share and P/E ratio.'
         stock_reply = bot.send_message(message.chat.id, msg_stock, reply_markup=return_keyb())
         bot.register_next_step_handler(stock_reply, get_ticker) #next step – function get_ticker
@@ -164,7 +164,7 @@ def get_news(message):
             answer_news += str(n) + '. ' + '[' + articles[i]['title'] + '](' + articles[i]['url'] + ')' + "\n\n"
 
         next_news = bot.send_message(message.from_user.id, text=answer_news, parse_mode='Markdown') # print 15 articles
-        bot.register_next_step_handler(next_news, get_message)
+        bot.register_next_step_handler(next_news, get_news)
 
     except Exception:
         answer_error_news = 'Couldn\'t find news about ' + query + '.\n' +\
@@ -246,12 +246,14 @@ def get_portfolio(message):
             cost = stock[3]
             change = price - cost
             str_change = str(round(change, 3))
-            if change > 0:
+            if change >= 0:
                 str_change = '+' + str_change
                 result = result + '⬆'
+                str_status = 'Gain: '
             elif change < 0:
                 result = result + '⬇'
-            result = result + ticker + ':\n' + 'Change: ' + str_change + '$\n' + 'Price: ' + str(round(price, 3)) + '$ (' +\
+                str_status = 'Loss: '
+            result = result + ticker + ':\n' + str_status + str_change + '$\n' + 'Current price: ' + str(round(price, 3)) + '$ (' +\
                     str(stock[2]) + ' units)\n\n'
             sum_price += price
             sum_cost += cost
@@ -261,9 +263,12 @@ def get_portfolio(message):
         bot.register_next_step_handler(next_post, ...)
     sum_change = sum_price - sum_cost
     str_sum_change = str(round(sum_change, 3))
-    if sum_change > 0:
+    if sum_change >= 0:
         str_sum_change = '+' + str_sum_change
-    result = result + 'Sum:\n' + str(round(sum_price, 3)) + '$ (' + str_sum_change + '$)'
+        str_total_status = 'Total gain: '
+    else:
+        str_total_status = 'Total loss: '
+    result = result + 'Sum: ' + str(round(sum_price, 3)) + '$\n' + str_total_status + str_sum_change + '$'
 
     return result
 
@@ -323,8 +328,8 @@ def p_add_stock(message):
         old_cost = row.fetchone()[3]
         new_number = old_number + number
         new_cost = old_cost + cost
-        db.execute('UPDATE Portfolio SET number_stocks = ? where (user_id = ? AND ticker IS ?)', (new_number, user_id))
-        db.execute('UPDATE Portfolio SET cost = ? where (user_id = ? AND ticker IS ?)', (new_cost, user_id))
+        db.execute('UPDATE Portfolio SET number_stocks = ? where (user_id = ? AND ticker IS ?)', (new_number, user_id, ticker))
+        db.execute('UPDATE Portfolio SET cost = ? where (user_id = ? AND ticker IS ?)', (new_cost, user_id, ticker))
         conn.commit()
     answer = get_portfolio(message)
     next = bot.send_message(message.from_user.id, text=answer)
@@ -370,7 +375,7 @@ def p_sell_stock(message):
             port_reply = bot.send_message(message.chat.id, answer)
             bot.register_next_step_handler(port_reply, p_sell_stock)
             return
-        elif number == old_number and revenue == old_cost:
+        elif number == old_number and round(revenue, 3) == round(old_cost, 3):
             db.execute('DELETE FROM Portfolio WHERE (user_id IS ? AND ticker IS ?)', (user_id, ticker))
             conn.commit()
         else:
